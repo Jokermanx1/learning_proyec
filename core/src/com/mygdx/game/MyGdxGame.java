@@ -12,6 +12,10 @@ public class MyGdxGame extends Game {
 
 	@Override
 	public void create () {
+		OwlAssets.load();
+		while(!OwlAssets.manager.update()){
+
+		}
 		gameScreen= new MainMenu(this);
 		setScreen(gameScreen);
 	}
