@@ -3,15 +3,29 @@ package com.mygdx.game.screens.gamescreen.entities;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.game.OwlAssets;
 
-public class Block extends ActorWithPhysics{
+public class Unit extends ActorWithPhysics{
     Texture texture;
-    public Block(World world, int width, int height, int x, int y){
-        super(world,width, height,x,y);
-        texture = (Texture)OwlAssets.manager.get("block.png");
+    public Unit(World world, int width, int height, int x, int y){
+        super(width, height,x,y);
+
+        setBody(null);
+        BodyDef bdef = new BodyDef();
+        bdef.position.set(x,y);
+        bdef.type = BodyDef.BodyType.DynamicBody;
+        setBody(world.createBody(bdef));
+        PolygonShape sh = new PolygonShape();
+        sh.setAsBox(width/2,height/2);
+        FixtureDef fxd = new FixtureDef();
+        fxd.shape = sh;
+        getBody().createFixture(fxd);
+
+        texture = (Texture) OwlAssets.manager.get("photo.jpg");
     }
 
     /**

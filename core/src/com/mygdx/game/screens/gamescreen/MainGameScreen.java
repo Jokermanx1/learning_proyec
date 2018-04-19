@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.screens.gamescreen.entities.Block;
+import com.mygdx.game.screens.gamescreen.entities.Unit;
 
 /**
  * Creating main game class
@@ -56,24 +57,21 @@ public class MainGameScreen implements Screen {
         //box2d
         b2dr = new Box2DDebugRenderer();
 
-        BodyDef bdef = new BodyDef();
-        bdef.position.set(160,120);
-        bdef.type = BodyDef.BodyType.StaticBody;
-
-
-        Body body = world.createBody(bdef);
-
-        PolygonShape sh = new PolygonShape();
-        sh.setAsBox(50,5);
-
-        FixtureDef fxd = new FixtureDef();
-        fxd.shape = sh;
-        body.createFixture(fxd);
-
         batch = new SpriteBatch();
-        Block block = new Block(world,32, 32,160, 200);
 
         stage = new Stage();
+        for(int i=0;i<10;i++) {
+            Block block = new Block(world, 32, 32, 100+i*32, 100);
+
+            stage.addActor(block);
+        }
+        for(int i=10;i<15;i++) {
+            Block block = new Block(world, 32, 32, 100+i*32, 132);
+
+            stage.addActor(block);
+        }
+        Unit block = new Unit(world, 32, 32, 100+32, 250);
+
         stage.addActor(block);
     }
 

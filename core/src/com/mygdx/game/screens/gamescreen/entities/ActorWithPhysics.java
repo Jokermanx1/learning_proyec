@@ -7,11 +7,41 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.mygdx.game.OwlAssets;
 
-public class Block extends ActorWithPhysics{
-    Texture texture;
-    public Block(World world, int width, int height, int x, int y){
-        super(world,width, height,x,y);
-        texture = (Texture)OwlAssets.manager.get("block.png");
+/**
+ * Basic class extending Actor class with properties of body
+ * need World object for interract with it
+ * At start all objects are Static Bodyes
+ * Basic constructor need
+ * world
+ * width
+ * height
+ * x position
+ * y position
+ * Texture name
+ *
+ * Texture manager is set for this project
+ *
+ */
+public class ActorWithPhysics extends Actor {
+
+
+    protected Body body;
+    public ActorWithPhysics(World world, int width, int height, int x, int y){
+        BodyDef bdef = new BodyDef();
+        bdef.position.set(x,y);
+        bdef.type = BodyDef.BodyType.StaticBody;
+        setBody(world.createBody(bdef));
+        PolygonShape sh = new PolygonShape();
+        sh.setAsBox(width/2,height/2);
+        FixtureDef fxd = new FixtureDef();
+        fxd.shape = sh;
+        getBody().createFixture(fxd);
+        this.setWidth(width);
+        this.setHeight(height);
+    }
+    public ActorWithPhysics(int width, int height, int x, int y){
+        this.setWidth(width);
+        this.setHeight(height);
     }
 
     /**
@@ -24,8 +54,8 @@ public class Block extends ActorWithPhysics{
     @Override
     public void act(float delta) {
         super.act(delta);
-        this.setX(body.getPosition().x-this.getWidth()/2);
-        this.setY(body.getPosition().y-this.getHeight()/2);
+        this.setX(getBody().getPosition().x-this.getWidth()/2);
+        this.setY(getBody().getPosition().y-this.getHeight()/2);
     }
 
     /**
@@ -43,6 +73,13 @@ public class Block extends ActorWithPhysics{
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-        batch.draw(texture, getX(), getY());
+    }
+
+    public Body getBody() {
+        return body;
+    }
+
+    public void setBody(Body body) {
+        this.body = body;
     }
 }
