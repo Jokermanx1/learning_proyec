@@ -42,10 +42,6 @@ public class MenuButton extends Actor{
 
 
 
-
-
-
-
         setWidth(WIDTH);
         setHeight(HEIGHT);
         setBounds(x, y, getWidth(), getHeight());

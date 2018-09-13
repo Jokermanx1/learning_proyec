@@ -7,8 +7,20 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.mygdx.game.OwlAssets;
 
+/**
+ * class created for be clock in the game
+ */
 public class Block extends ActorWithPhysics{
     Texture texture;
+
+    /**
+     *
+     * @param world wordld of the game
+     * @param width of block block
+     * @param height of block
+     * @param x position in the game and world
+     * @param y position in the game and world
+     */
     public Block(World world, int width, int height, int x, int y){
         super(world,width, height,x,y);
         texture = (Texture)OwlAssets.manager.get("block.png");
@@ -24,8 +36,6 @@ public class Block extends ActorWithPhysics{
     @Override
     public void act(float delta) {
         super.act(delta);
-        this.setX(body.getPosition().x-this.getWidth()/2);
-        this.setY(body.getPosition().y-this.getHeight()/2);
     }
 
     /**

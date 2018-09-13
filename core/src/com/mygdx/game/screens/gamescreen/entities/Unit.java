@@ -3,29 +3,36 @@ package com.mygdx.game.screens.gamescreen.entities;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.game.OwlAssets;
+import com.mygdx.game.settings.Constants;
+import com.mygdx.game.settings.Constants.MOVING_STATES;
+
+import static com.mygdx.game.settings.Constants.*;
 
 public class Unit extends ActorWithPhysics{
     Texture texture;
+    MOVING_STATES state;
     public Unit(World world, int width, int height, int x, int y){
         super(width, height,x,y);
 
-        setBody(null);
         BodyDef bdef = new BodyDef();
-        bdef.position.set(x,y);
+        bdef.position.set(x/ PPM,y/ PPM);
         bdef.type = BodyDef.BodyType.DynamicBody;
         setBody(world.createBody(bdef));
         PolygonShape sh = new PolygonShape();
-        sh.setAsBox(width/2,height/2);
+        sh.setAsBox(width/2/ PPM,height/2/ PPM);
         FixtureDef fxd = new FixtureDef();
         fxd.shape = sh;
         getBody().createFixture(fxd);
+        state = MOVING_STATES.STOPPED;
 
         texture = (Texture) OwlAssets.manager.get("photo.jpg");
+
     }
 
     /**
@@ -37,9 +44,16 @@ public class Unit extends ActorWithPhysics{
      */
     @Override
     public void act(float delta) {
+
         super.act(delta);
-        this.setX(body.getPosition().x-this.getWidth()/2);
-        this.setY(body.getPosition().y-this.getHeight()/2);
+        if(Math.abs(this.body.getLinearVelocity().x)<MAX_SPEED) {
+            if (state == MOVING_STATES.MOVING_RIGHT) {
+                this.body.applyLinearImpulse(new Vector2(ACELERATION / PPM, 0), this.getBody().getPosition(), true);
+            }
+            if (state == MOVING_STATES.MOVING_LEFT) {
+                this.body.applyLinearImpulse(new Vector2(-ACELERATION / PPM, 0), this.getBody().getPosition(), true);
+            }
+        }
     }
 
     /**
@@ -58,5 +72,54 @@ public class Unit extends ActorWithPhysics{
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
         batch.draw(texture, getX(), getY());
+    }
+
+    /**
+     * make unit jump, no arguments
+     */
+    public void jump(){
+        this.body.applyLinearImpulse(new Vector2(0f,JUMP/PPM),this.getBody().getPosition(),true);
+    }
+
+    /**
+     * make unit move right a bit, no arguments
+     */
+    public void right(){
+        this.body.applyLinearImpulse(new Vector2(ACELERATION/PPM,0),this.getBody().getPosition(),true);
+    }
+
+    /**
+     * make unit move right bit a bit, no arguments
+     */
+    public void startMovingRight(){
+        state = MOVING_STATES.MOVING_RIGHT;
+    }
+    /**
+     * will stop adding velocity to unit
+     */
+    public void stopMovingRight(){
+        state = MOVING_STATES.STOPPED;
+    }
+    /**
+     * make unit move right bit a bit, no arguments
+     */
+    public void startMovingLeft(){
+        state = MOVING_STATES.MOVING_LEFT;
+    }
+    /**
+     * will stop adding velocity to unit
+     */
+    public void stopMovingLeft(){
+        state = MOVING_STATES.STOPPED;
+    }
+    /**
+     * make unit move right a bit, no arguments
+     */
+    public void left(){
+        this.body.applyLinearImpulse(new Vector2(-ACELERATION/PPM,0),this.getBody().getPosition(),true);
+    }
+
+    public Vector2 getPosition(){
+        return new Vector2(body.getPosition().x * PPM, body.getPosition().y * PPM);
     }
 }

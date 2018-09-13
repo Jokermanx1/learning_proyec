@@ -30,7 +30,7 @@ public class MyGdxGame extends Game {
 	@Override
 	public void dispose () {
 		gameScreen.dispose();
-		Gdx.app.exit();
 		System.exit(0);
+		Gdx.app.exit();
 	}
 }

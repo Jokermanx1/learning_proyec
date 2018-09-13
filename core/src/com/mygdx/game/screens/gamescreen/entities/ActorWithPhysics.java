@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.mygdx.game.OwlAssets;
+import com.mygdx.game.settings.Constants;
+import static com.mygdx.game.settings.Constants.PPM;
 
 /**
  * Basic class extending Actor class with properties of body
@@ -28,11 +30,11 @@ public class ActorWithPhysics extends Actor {
     protected Body body;
     public ActorWithPhysics(World world, int width, int height, int x, int y){
         BodyDef bdef = new BodyDef();
-        bdef.position.set(x,y);
+        bdef.position.set(x/ PPM,y/ PPM);
         bdef.type = BodyDef.BodyType.StaticBody;
         setBody(world.createBody(bdef));
         PolygonShape sh = new PolygonShape();
-        sh.setAsBox(width/2,height/2);
+        sh.setAsBox(width/2/PPM,height/2/PPM);
         FixtureDef fxd = new FixtureDef();
         fxd.shape = sh;
         getBody().createFixture(fxd);
@@ -54,8 +56,8 @@ public class ActorWithPhysics extends Actor {
     @Override
     public void act(float delta) {
         super.act(delta);
-        this.setX(getBody().getPosition().x-this.getWidth()/2);
-        this.setY(getBody().getPosition().y-this.getHeight()/2);
+        this.setX(getBody().getPosition().x*PPM-this.getWidth()/2);
+        this.setY(getBody().getPosition().y*PPM-this.getHeight()/2);
     }
 
     /**
