@@ -6,6 +6,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.mygdx.game.OwlAssets;
+import com.mygdx.game.screens.gamescreen.MainGameScreen;
+
+import static com.mygdx.game.settings.Constants.BIT_FULL;
+import static com.mygdx.game.settings.Constants.BIT_GROUND;
+import static com.mygdx.game.settings.Constants.PPM;
 
 /**
  * class created for be clock in the game
@@ -21,8 +26,20 @@ public class Block extends ActorWithPhysics{
      * @param x position in the game and world
      * @param y position in the game and world
      */
-    public Block(World world, int width, int height, int x, int y){
-        super(world,width, height,x,y);
+    public Block(MainGameScreen gamescreen,World world, int width, int height, int x, int y){
+        super(gamescreen,world,width, height,x,y);
+
+        BodyDef bdef = new BodyDef();
+        bdef.position.set(x/ PPM,y/ PPM);
+        bdef.type = BodyDef.BodyType.StaticBody;
+        setBody(world.createBody(bdef));
+        PolygonShape sh = new PolygonShape();
+        sh.setAsBox(width/2/PPM,height/2/PPM);
+        FixtureDef fxd = new FixtureDef();
+        fxd.shape = sh;
+        fxd.filter.categoryBits = BIT_GROUND;
+        fxd.filter.maskBits = BIT_FULL;
+        getBody().createFixture(fxd);
         texture = (Texture)OwlAssets.manager.get("block.png");
     }
 

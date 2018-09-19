@@ -3,6 +3,7 @@ package com.mygdx.game.screens.gamescreen;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -10,13 +11,15 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.mygdx.game.MyGdxGame;
 import com.mygdx.game.screens.gamescreen.controlls.KeyboardListener;
+import com.mygdx.game.screens.gamescreen.controlls.LearningContactListener;
 import com.mygdx.game.screens.gamescreen.controlls.UnitController;
+import com.mygdx.game.screens.gamescreen.entities.ActorScores;
 import com.mygdx.game.screens.gamescreen.entities.Block;
+import com.mygdx.game.screens.gamescreen.entities.Coin;
 import com.mygdx.game.screens.gamescreen.entities.Unit;
 import com.mygdx.game.settings.Constants;
 
-import static com.mygdx.game.settings.Constants.CAMERA_SMOOTHING;
-import static com.mygdx.game.settings.Constants.GRAVITY;
+import static com.mygdx.game.settings.Constants.*;
 
 /**
  * Creating main game class
@@ -31,13 +34,14 @@ import static com.mygdx.game.settings.Constants.GRAVITY;
 public class MainGameScreen implements Screen {
     private MyGdxGame game;
     private World world;
-    protected OrthographicCamera camera;
+    public OrthographicCamera camera;
     Box2DDebugRenderer b2dr;
     private Stage stage;
     private Unit unit;
-    private SpriteBatch batch;
-
-
+    private int coins;
+    private float screenWidth;
+    private float screenHeight;
+    ActorScores score;
 
     private InputMultiplexer multiplexor;
     private InputProcessor mouseListener,keyboardListener;
@@ -49,59 +53,52 @@ public class MainGameScreen implements Screen {
         window variables
          */
         this.game = game;
-        float w = Gdx.graphics.getWidth();
-        float h = Gdx.graphics.getHeight();
-
+        setScreenWidth(Gdx.graphics.getWidth());
+        setScreenHeight(Gdx.graphics.getHeight());
+        setCoins(0);
         /**
          * Camera block, for now useless
          */
-        camera = new OrthographicCamera();
-        /*
-        camera = new OrthographicCamera(30, 30 * (h / w));
 
-        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
+        camera = new OrthographicCamera(WIDTH_RATIO,HEIGHT_RATIO);
+        camera.position.set(50, 350, camera.position.z);
         camera.update();
-
-        /**
-         *
-         *
-         */
-
 
         /*
         creating worlds
          */
         world = new World(new Vector2(0,GRAVITY),true);
 
+        //adding contact listener to world
+        world.setContactListener(new LearningContactListener());
         //box2d
         b2dr = new Box2DDebugRenderer();
 
-        batch = new SpriteBatch();
-
         stage = new Stage();
-        for(int i=0;i<25;i++) {
-            Block block = new Block(world, 32, 32, -32, i*16);
+        for(int i=-100;i<255;i++) {
+            Block block = new Block(this,world, 32, 32, -32, i*16);
             stage.addActor(block);
         }
-        for(int i=0;i<50;i++) {
-            Block block = new Block(world, 32, 32, i*32, 16);
+        for(int i=0;i<250;i++) {
+            Block block = new Block(this,world, 32, 32, i*32, 16);
 
             stage.addActor(block);
         }
         for(int i=0;i<15;i++) {
-            Block block = new Block(world, 32, 32, 100+i*32, 132);
+            Block block = new Block(this,world, 32, 32, 100+i*32, 132);
 
             stage.addActor(block);
         }
-
+        for(int i=7;i<12;i=i+2) {
+            Coin coin = new Coin(this,world, 32, 32, i*32, 222);
+            stage.addActor(coin);
+        }
         /*
         creating unit
          */
         unit = new Unit(world, 32, 32, 100+32, 250);
-
         stage.addActor(unit);
-
-
+        score = new ActorScores(this);
 
         /*
         starting controllers
@@ -111,7 +108,6 @@ public class MainGameScreen implements Screen {
         multiplexor = new InputMultiplexer();
         multiplexor.addProcessor(keyboardListener);
         Gdx.input.setInputProcessor(multiplexor);
-
     }
 
     /**
@@ -143,17 +139,16 @@ public class MainGameScreen implements Screen {
         //Gdx.gl.glClearColor((float)0.14, 0, (float)0.66, 1);;
         Gdx.gl.glClearColor((float)0, 0, (float)0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        //b2dr.render(world,batch.getProjectionMatrix());
-        //camera.position.lerp(new Vector3(unit.getPosition(), camera.position.z), CAMERA_SMOOTHING);
-        //camera.update();
-        batch.begin();
-        //b2dr.render(world,camera.combined);
-        b2dr.render(world,batch.getProjectionMatrix());
-        batch.end();
-
         stage.act();
+        camera.position.lerp(new Vector3(unit.getPosition(), 0), CAMERA_SMOOTHING);
+        camera.update();
+        stage.getViewport().setCamera(camera);
         stage.draw();
+        SpriteBatch batch = new SpriteBatch();
+
+        batch.begin();
+        score.draw(batch,delta);
+        batch.end();
     }
 
     /**
@@ -197,5 +192,32 @@ public class MainGameScreen implements Screen {
     public void dispose() {
         world.dispose();
         b2dr.dispose();
+    }
+
+    public int getCoins() {
+        return coins;
+    }
+
+    public void setCoins(int coins) {
+        this.coins = coins;
+    }
+    public void addCoins(){
+        coins++;
+    }
+
+    public float getScreenWidth() {
+        return screenWidth;
+    }
+
+    public void setScreenWidth(float screenWidth) {
+        this.screenWidth = screenWidth;
+    }
+
+    public float getScreenHeight() {
+        return screenHeight;
+    }
+
+    public void setScreenHeight(float screenHeight) {
+        this.screenHeight = screenHeight;
     }
 }

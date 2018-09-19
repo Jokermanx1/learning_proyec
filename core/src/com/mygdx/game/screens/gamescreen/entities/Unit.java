@@ -15,7 +15,6 @@ import com.mygdx.game.settings.Constants.MOVING_STATES;
 import static com.mygdx.game.settings.Constants.*;
 
 public class Unit extends ActorWithPhysics{
-    Texture texture;
     MOVING_STATES state;
     public Unit(World world, int width, int height, int x, int y){
         super(width, height,x,y);
@@ -28,6 +27,7 @@ public class Unit extends ActorWithPhysics{
         sh.setAsBox(width/2/ PPM,height/2/ PPM);
         FixtureDef fxd = new FixtureDef();
         fxd.shape = sh;
+        fxd.filter.categoryBits = BIT_CHARACTER;
         getBody().createFixture(fxd);
         state = MOVING_STATES.STOPPED;
 

@@ -3,44 +3,33 @@ package com.mygdx.game.screens.gamescreen.entities;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.game.OwlAssets;
 import com.mygdx.game.screens.gamescreen.MainGameScreen;
-import com.mygdx.game.settings.Constants;
-import static com.mygdx.game.settings.Constants.PPM;
 
-/**
- * Basic class extending Actor class with properties of body
- * need World object for interract with it
- * At start all objects are Static Bodyes
- * Basic constructor need
- * world
- * width
- * height
- * x position
- * y position
- * Texture name
- *
- * Texture manager is set for this project
- *
- */
-public class ActorWithPhysics extends Actor {
+import static com.mygdx.game.settings.Constants.*;
 
+public class Coin extends ActorWithPhysics {
 
-    protected Body body;
-    protected World world;
-    Texture texture;
-    MainGameScreen gamescreen;
-    public ActorWithPhysics(MainGameScreen gamescreen, World world, int width, int height, int x, int y){
-        this.world = world;
-        this.gamescreen =gamescreen;
-        this.setWidth(width);
-        this.setHeight(height);
-    }
-    public ActorWithPhysics(int width, int height, int x, int y){
-        this.setWidth(width);
-        this.setHeight(height);
+    public Coin(MainGameScreen gamescreen,World world, int width, int height, int x, int y) {
+        super(gamescreen,world, width, height, x, y);
+
+        BodyDef bdef = new BodyDef();
+        bdef.position.set(x/ PPM,y/ PPM);
+        bdef.type = BodyDef.BodyType.KinematicBody;
+        setBody(world.createBody(bdef));
+        PolygonShape sh = new PolygonShape();
+        sh.setAsBox(width/2/PPM,height/2/PPM);
+        FixtureDef fxd = new FixtureDef();
+        fxd.shape = sh;
+        fxd.filter.categoryBits = BIT_COIN;
+        fxd.filter.maskBits = BIT_CHARACTER;
+        fxd.isSensor = true;
+        getBody().createFixture(fxd).setUserData("coin");
+        texture = (Texture)OwlAssets.manager.get("bitcoin.png");
     }
 
     /**
@@ -52,9 +41,13 @@ public class ActorWithPhysics extends Actor {
      */
     @Override
     public void act(float delta) {
+
         super.act(delta);
-        this.setX(getBody().getPosition().x*PPM-this.getWidth()/2);
-        this.setY(getBody().getPosition().y*PPM-this.getHeight()/2);
+        if(this.body.getUserData()!=null&&this.body.getUserData().equals("DELETED")){
+            world.destroyBody(this.body);
+            gamescreen.addCoins();
+            this.remove();
+        }
     }
 
     /**
@@ -72,13 +65,6 @@ public class ActorWithPhysics extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         super.draw(batch, parentAlpha);
-    }
-
-    public Body getBody() {
-        return body;
-    }
-
-    public void setBody(Body body) {
-        this.body = body;
+        batch.draw(texture, getX(), getY());
     }
 }
